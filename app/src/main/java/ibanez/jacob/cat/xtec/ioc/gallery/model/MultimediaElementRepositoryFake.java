@@ -2,8 +2,6 @@ package ibanez.jacob.cat.xtec.ioc.gallery.model;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -12,7 +10,7 @@ import java.util.Random;
 
 public class MultimediaElementRepositoryFake implements MultimediaElementRepository {
 
-    private List<MultimediaElement> mFakeDatabase = new ArrayList<>();
+    private Gallery mFakeDatabase = new Gallery();
     private OnMultimediaElementCreatedListener mMultimediaElementCreatedListener;
 
     public MultimediaElementRepositoryFake() {
@@ -45,9 +43,7 @@ public class MultimediaElementRepositoryFake implements MultimediaElementReposit
 
     @Override
     public Gallery getGallery() {
-        Gallery gallery = new Gallery();
-        gallery.setGallery(mFakeDatabase);
-        return gallery;
+        return mFakeDatabase;
     }
 
     @Override

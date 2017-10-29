@@ -1,5 +1,6 @@
 package ibanez.jacob.cat.xtec.ioc.gallery.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,6 +9,10 @@ import java.util.List;
 public class Gallery {
 
     List<MultimediaElement> mGallery;
+
+    public Gallery() {
+        this.mGallery = new ArrayList<>();
+    }
 
     public void setGallery(List<MultimediaElement> gallery) {
         this.mGallery = gallery;
