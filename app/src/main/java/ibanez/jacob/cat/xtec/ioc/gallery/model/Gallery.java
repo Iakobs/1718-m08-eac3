@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A class for encapsulating a collection of {@link MultimediaElement}s.
+ *
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
  */
 public class Gallery {
 
-    List<MultimediaElement> mGallery;
+    private List<MultimediaElement> mGallery;
 
     public Gallery() {
         this.mGallery = new ArrayList<>();

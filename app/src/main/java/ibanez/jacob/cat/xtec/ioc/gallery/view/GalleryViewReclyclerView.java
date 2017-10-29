@@ -2,6 +2,7 @@ package ibanez.jacob.cat.xtec.ioc.gallery.view;
 
 import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ public class GalleryViewReclyclerView implements GalleryView {
 
     private View mRootView;
     private GalleryRecyclerViewAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
     private OnTakePictureListener mTakePictureListener;
     private OnRecordVideoListener mRecordVideoListener;
     private FloatingActionButton mFabTakePicture;
@@ -36,9 +38,13 @@ public class GalleryViewReclyclerView implements GalleryView {
 
         RecyclerView recyclerView = mRootView.findViewById(R.id.rv_gallery);
         recyclerView.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mRootView.getContext()); //default is set to vertical
-        recyclerView.setLayoutManager(layoutManager);
+        mLayoutManager = new LinearLayoutManager(mRootView.getContext()); //default is set to vertical
+        mLayoutManager.setReverseLayout(true);
+        recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setAdapter(mAdapter);
+        //add a decorator to separate items
+        DividerItemDecoration decoration = new DividerItemDecoration(context, mLayoutManager.getOrientation());
+        recyclerView.addItemDecoration(decoration);
 
         mFabTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,5 +103,6 @@ public class GalleryViewReclyclerView implements GalleryView {
     @Override
     public void bindMultimediaElements(Gallery gallery) {
         mAdapter.setGallery(gallery);
+        mLayoutManager.scrollToPosition(gallery.size() - 1);
     }
 }

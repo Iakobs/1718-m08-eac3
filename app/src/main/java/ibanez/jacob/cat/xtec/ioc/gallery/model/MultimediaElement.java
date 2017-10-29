@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
+ * A class representing a single {@link MultimediaElement}.
+ *
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
  */
 public class MultimediaElement implements Serializable {

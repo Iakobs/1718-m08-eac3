@@ -5,10 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import ibanez.jacob.cat.xtec.ioc.gallery.model.Gallery;
+import java.util.Date;
+
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElement;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementRepository;
-import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementRepositoryFake;
+import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementRepositorySqlLite;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementType;
 import ibanez.jacob.cat.xtec.ioc.gallery.view.GalleryView;
 import ibanez.jacob.cat.xtec.ioc.gallery.view.GalleryViewReclyclerView;
@@ -35,19 +36,15 @@ public class GalleryPresenter extends AppCompatActivity implements
         mGalleryView.setTakePictureListener(this);
         mGalleryView.setRecordVideoListener(this);
 
-        mRepository = new MultimediaElementRepositoryFake();
+        mRepository = new MultimediaElementRepositorySqlLite(this);
         mRepository.setMultimediaElementCreatedListener(this);
         mGalleryView.bindMultimediaElements(mRepository.getGallery());
     }
 
     @Override
     public void onVideoRecorded() {
-        Gallery gallery = mRepository.getGallery();
-        long newId = gallery.get(gallery.size() - 1).getId() + 1;
-
         MultimediaElement multimediaElement = new MultimediaElement();
-        multimediaElement.setId(newId);
-        multimediaElement.setName("Video " + newId);
+        multimediaElement.setName("Video." + new Date().toString() + ".mp4");
         multimediaElement.setPath("/");
         multimediaElement.setType(MultimediaElementType.VIDEO.getType());
         multimediaElement.setLatLng(new LatLng(0, 0));
@@ -56,12 +53,8 @@ public class GalleryPresenter extends AppCompatActivity implements
 
     @Override
     public void onPictureTaken() {
-        Gallery gallery = mRepository.getGallery();
-        long newId = gallery.get(gallery.size() - 1).getId() + 1;
-
         MultimediaElement multimediaElement = new MultimediaElement();
-        multimediaElement.setId(newId);
-        multimediaElement.setName("Picture " + newId);
+        multimediaElement.setName("Picture." + new Date().toString() + ".jpg");
         multimediaElement.setPath("/");
         multimediaElement.setType(MultimediaElementType.PICTURE.getType());
         multimediaElement.setLatLng(new LatLng(0, 0));

@@ -5,15 +5,17 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.Random;
 
 /**
+ * Fake implementation of {@link MultimediaElementRepository} for test purposes.
+ *
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
  */
-
 public class MultimediaElementRepositoryFake implements MultimediaElementRepository {
 
     private Gallery mFakeDatabase = new Gallery();
     private OnMultimediaElementCreatedListener mMultimediaElementCreatedListener;
 
     public MultimediaElementRepositoryFake() {
+        //add 10 elements to the fake database
         for (int i = 1; i <= 10; i++) {
             int type = new Random().nextBoolean() ? 0 : 1;
             String name = "Picture ";
