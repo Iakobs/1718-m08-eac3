@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorTakePictureButton">#303F9F</color>
     <color name="colorRecordVideoButton">#75AB00</color>
+    <color name="grey_image_tint">#747474</color>
+    <color name="grey_text_color">#747474</color>
+    <color name="grey_background">#e8e8e8</color>
 </resources>
