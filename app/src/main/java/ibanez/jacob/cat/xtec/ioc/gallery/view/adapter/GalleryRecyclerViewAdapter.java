@@ -7,9 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
-
 import ibanez.jacob.cat.xtec.ioc.gallery.R;
+import ibanez.jacob.cat.xtec.ioc.gallery.model.Gallery;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElement;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementType;
 import ibanez.jacob.cat.xtec.ioc.gallery.view.GalleryView;
@@ -17,10 +16,10 @@ import ibanez.jacob.cat.xtec.ioc.gallery.view.GalleryView;
 /**
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
  */
-public class MultimediaElementRecyclerViewAdapter extends
-        RecyclerView.Adapter<MultimediaElementRecyclerViewAdapter.MultimediaElementViewHolder> {
+public class GalleryRecyclerViewAdapter extends
+        RecyclerView.Adapter<GalleryRecyclerViewAdapter.MultimediaElementViewHolder> {
 
-    private List<MultimediaElement> mGallery;
+    private Gallery mGallery;
     private GalleryView.OnMultimediaElementClickListener mMultimediaElementClickListener;
 
     @Override
@@ -50,7 +49,7 @@ public class MultimediaElementRecyclerViewAdapter extends
         return mGallery != null && !mGallery.isEmpty() ? mGallery.size() : 0;
     }
 
-    public void setGallery(List<MultimediaElement> gallery) {
+    public void setGallery(Gallery gallery) {
         this.mGallery = gallery;
         this.notifyDataSetChanged();
     }

@@ -5,11 +5,10 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.List;
-
-import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementRepositoryFake;
+import ibanez.jacob.cat.xtec.ioc.gallery.model.Gallery;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElement;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementRepository;
+import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementRepositoryFake;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementType;
 import ibanez.jacob.cat.xtec.ioc.gallery.view.GalleryView;
 import ibanez.jacob.cat.xtec.ioc.gallery.view.GalleryViewReclyclerView;
@@ -38,12 +37,12 @@ public class GalleryPresenter extends AppCompatActivity implements
 
         mRepository = new MultimediaElementRepositoryFake();
         mRepository.setMultimediaElementCreatedListener(this);
-        mGalleryView.bindMultimediaElements(mRepository.getAllItems());
+        mGalleryView.bindMultimediaElements(mRepository.getGallery());
     }
 
     @Override
     public void onVideoRecorded() {
-        List<MultimediaElement> gallery = mRepository.getAllItems();
+        Gallery gallery = mRepository.getGallery();
         long newId = gallery.get(gallery.size() - 1).getId() + 1;
 
         MultimediaElement multimediaElement = new MultimediaElement();
@@ -52,12 +51,12 @@ public class GalleryPresenter extends AppCompatActivity implements
         multimediaElement.setPath("/");
         multimediaElement.setType(MultimediaElementType.VIDEO.getType());
         multimediaElement.setLatLng(new LatLng(0, 0));
-        mRepository.addItem(multimediaElement);
+        mRepository.addMultimediaElement(multimediaElement);
     }
 
     @Override
     public void onPictureTaken() {
-        List<MultimediaElement> gallery = mRepository.getAllItems();
+        Gallery gallery = mRepository.getGallery();
         long newId = gallery.get(gallery.size() - 1).getId() + 1;
 
         MultimediaElement multimediaElement = new MultimediaElement();
@@ -66,7 +65,7 @@ public class GalleryPresenter extends AppCompatActivity implements
         multimediaElement.setPath("/");
         multimediaElement.setType(MultimediaElementType.PICTURE.getType());
         multimediaElement.setLatLng(new LatLng(0, 0));
-        mRepository.addItem(multimediaElement);
+        mRepository.addMultimediaElement(multimediaElement);
     }
 
     @Override
@@ -76,6 +75,6 @@ public class GalleryPresenter extends AppCompatActivity implements
 
     @Override
     public void onMultimediaElementCreation() {
-        mGalleryView.bindMultimediaElements(mRepository.getAllItems());
+        mGalleryView.bindMultimediaElements(mRepository.getGallery());
     }
 }

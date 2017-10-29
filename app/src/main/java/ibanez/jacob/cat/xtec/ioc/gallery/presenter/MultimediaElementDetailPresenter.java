@@ -1,7 +1,7 @@
 package ibanez.jacob.cat.xtec.ioc.gallery.presenter;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import ibanez.jacob.cat.xtec.ioc.gallery.R;
 

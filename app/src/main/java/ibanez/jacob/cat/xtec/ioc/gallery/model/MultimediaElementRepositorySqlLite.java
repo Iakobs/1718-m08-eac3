@@ -6,8 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.util.List;
-
 /**
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
  */
@@ -83,17 +81,17 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
     }
 
     @Override
-    public MultimediaElement getItemById(long id) {
+    public MultimediaElement getMultimediaElementById(long id) {
         return null;
     }
 
     @Override
-    public List<MultimediaElement> getAllItems() {
+    public Gallery getGallery() {
         return null;
     }
 
     @Override
-    public void addItem(MultimediaElement multimediaElement) {
+    public void addMultimediaElement(MultimediaElement multimediaElement) {
 
     }
 

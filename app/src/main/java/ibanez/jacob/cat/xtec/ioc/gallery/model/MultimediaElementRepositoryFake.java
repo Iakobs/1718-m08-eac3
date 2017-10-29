@@ -39,17 +39,19 @@ public class MultimediaElementRepositoryFake implements MultimediaElementReposit
     }
 
     @Override
-    public MultimediaElement getItemById(long id) {
+    public MultimediaElement getMultimediaElementById(long id) {
         return mFakeDatabase.get((int) id);
     }
 
     @Override
-    public List<MultimediaElement> getAllItems() {
-        return mFakeDatabase;
+    public Gallery getGallery() {
+        Gallery gallery = new Gallery();
+        gallery.setGallery(mFakeDatabase);
+        return gallery;
     }
 
     @Override
-    public void addItem(MultimediaElement multimediaElement) {
+    public void addMultimediaElement(MultimediaElement multimediaElement) {
         mFakeDatabase.add(multimediaElement);
         notifyMultimediaElementCreationListener();
     }

@@ -2,9 +2,7 @@ package ibanez.jacob.cat.xtec.ioc.gallery.view;
 
 import android.view.View;
 
-import java.util.List;
-
-import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElement;
+import ibanez.jacob.cat.xtec.ioc.gallery.model.Gallery;
 
 /**
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
@@ -36,5 +34,5 @@ public interface GalleryView {
 
     void disableCamera();
 
-    void bindMultimediaElements(List<MultimediaElement> multimediaElements);
+    void bindMultimediaElements(Gallery gallery);
 }

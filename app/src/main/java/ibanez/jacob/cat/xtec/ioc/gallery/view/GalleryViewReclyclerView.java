@@ -8,11 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
-
 import ibanez.jacob.cat.xtec.ioc.gallery.R;
-import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElement;
-import ibanez.jacob.cat.xtec.ioc.gallery.view.adapter.MultimediaElementRecyclerViewAdapter;
+import ibanez.jacob.cat.xtec.ioc.gallery.model.Gallery;
+import ibanez.jacob.cat.xtec.ioc.gallery.view.adapter.GalleryRecyclerViewAdapter;
 
 /**
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
@@ -23,7 +21,7 @@ public class GalleryViewReclyclerView implements GalleryView {
     private static final float ALPHA_DISABLED = 0.6f;
 
     private View mRootView;
-    private MultimediaElementRecyclerViewAdapter mAdapter;
+    private GalleryRecyclerViewAdapter mAdapter;
     private OnTakePictureListener mTakePictureListener;
     private OnRecordVideoListener mRecordVideoListener;
     private FloatingActionButton mFabTakePicture;
@@ -32,7 +30,7 @@ public class GalleryViewReclyclerView implements GalleryView {
     public GalleryViewReclyclerView(Context context, ViewGroup container) {
         mRootView = LayoutInflater.from(context).inflate(R.layout.gallery_view, container);
 
-        mAdapter = new MultimediaElementRecyclerViewAdapter();
+        mAdapter = new GalleryRecyclerViewAdapter();
         mFabTakePicture = mRootView.findViewById(R.id.fab_take_picture);
         mFabRecordVideo = mRootView.findViewById(R.id.fab_record_video);
 
@@ -97,7 +95,7 @@ public class GalleryViewReclyclerView implements GalleryView {
     }
 
     @Override
-    public void bindMultimediaElements(List<MultimediaElement> multimediaElements) {
-        mAdapter.setGallery(multimediaElements);
+    public void bindMultimediaElements(Gallery gallery) {
+        mAdapter.setGallery(gallery);
     }
 }

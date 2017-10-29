@@ -1,7 +1,5 @@
 package ibanez.jacob.cat.xtec.ioc.gallery.model;
 
-import java.util.List;
-
 /**
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
  */
@@ -13,9 +11,9 @@ public interface MultimediaElementRepository {
 
     void setMultimediaElementCreatedListener(OnMultimediaElementCreatedListener multimediaElementCreatedListener);
 
-    MultimediaElement getItemById(long id);
+    MultimediaElement getMultimediaElementById(long id);
 
-    List<MultimediaElement> getAllItems();
+    Gallery getGallery();
 
-    void addItem(MultimediaElement multimediaElement);
+    void addMultimediaElement(MultimediaElement multimediaElement);
 }
