@@ -1,7 +1,12 @@
 package ibanez.jacob.cat.xtec.ioc.gallery.presenter;
 
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -21,10 +26,13 @@ public class GalleryPresenter extends AppCompatActivity implements
         GalleryView.OnMultimediaElementClickListener,
         GalleryView.OnTakePictureListener,
         GalleryView.OnRecordVideoListener,
-        MultimediaElementRepository.OnMultimediaElementCreatedListener {
+        GalleryView.OnMultimediaElementSwipeListener,
+        MultimediaElementRepository.OnGalleryChangedListener,
+        LocationListener {
 
     private GalleryView mGalleryView;
     private MultimediaElementRepository mRepository;
+    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +43,11 @@ public class GalleryPresenter extends AppCompatActivity implements
         mGalleryView.setMultimediaElementClickListener(this);
         mGalleryView.setTakePictureListener(this);
         mGalleryView.setRecordVideoListener(this);
+        mGalleryView.setMultimediaElementSwipeListener(this);
 
         mRepository = new MultimediaElementRepositorySqlLite(this);
-        mRepository.setMultimediaElementCreatedListener(this);
-        mGalleryView.bindMultimediaElements(mRepository.getGallery());
+        mRepository.setGalleryChangedListener(this);
+        mGalleryView.bindGallery(mRepository.getGallery());
     }
 
     @Override
@@ -62,12 +71,55 @@ public class GalleryPresenter extends AppCompatActivity implements
     }
 
     @Override
-    public void onMultimediaElementClicked(long multimediaElementId) {
+    public void onMultimediaElementClicked(long id) {
+        MultimediaElement multimediaElement = mRepository.getMultimediaElementById(id);
+
+        if (multimediaElement != null) {
+            if (mToast != null) {
+                mToast.cancel();
+            }
+            mToast = Toast.makeText(this, multimediaElement.toString(), Toast.LENGTH_LONG);
+            mToast.show();
+        }
+    }
+
+    @Override
+    public void onMultimediaElementSwiped(long id) {
+        mRepository.removeMultimediaElementById(id);
+    }
+
+    @Override
+    public void onGalleryChange() {
+        mGalleryView.bindGallery(mRepository.getGallery());
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
 
     }
 
     @Override
-    public void onMultimediaElementCreation() {
-        mGalleryView.bindMultimediaElements(mRepository.getGallery());
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void checkPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{}, 1);
+        ActivityCompat.checkSelfPermission(this, "");
     }
 }

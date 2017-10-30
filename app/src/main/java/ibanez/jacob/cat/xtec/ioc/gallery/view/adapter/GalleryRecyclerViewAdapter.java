@@ -31,7 +31,7 @@ public class GalleryRecyclerViewAdapter extends
 
     @Override
     public void onBindViewHolder(MultimediaElementViewHolder holder, int position) {
-        MultimediaElement multimediaElement = mGallery.get(position);
+        MultimediaElement multimediaElement = getMultimediaElementByPosition(position);
 
         if (multimediaElement.getType() == MultimediaElementType.PICTURE.getType()) {
             holder.mImageViewType.setImageResource(R.drawable.ic_image_black_24dp);
@@ -54,6 +54,10 @@ public class GalleryRecyclerViewAdapter extends
         this.notifyDataSetChanged();
     }
 
+    public MultimediaElement getMultimediaElementByPosition(int position) {
+        return mGallery.get(position);
+    }
+
     public void setMultimediaElementClickListener(GalleryView.OnMultimediaElementClickListener multimediaElementClickListener) {
         this.mMultimediaElementClickListener = multimediaElementClickListener;
     }
@@ -74,7 +78,7 @@ public class GalleryRecyclerViewAdapter extends
                 public void onClick(View view) {
                     if (mMultimediaElementClickListener != null) {
                         int position = getAdapterPosition();
-                        MultimediaElement multimediaElement = mGallery.get(position);
+                        MultimediaElement multimediaElement = getMultimediaElementByPosition(position);
                         long id = multimediaElement.getId();
 
                         mMultimediaElementClickListener.onMultimediaElementClicked(id);

@@ -1,6 +1,7 @@
 package ibanez.jacob.cat.xtec.ioc.gallery.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -42,5 +43,9 @@ public class Gallery {
             return mGallery.size();
         }
         return 0;
+    }
+
+    public Collection<MultimediaElement> getCollection() {
+        return this.mGallery;
     }
 }

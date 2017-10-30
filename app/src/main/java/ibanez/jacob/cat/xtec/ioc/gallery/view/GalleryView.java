@@ -11,7 +11,7 @@ import ibanez.jacob.cat.xtec.ioc.gallery.model.Gallery;
 public interface GalleryView {
 
     interface OnMultimediaElementClickListener {
-        void onMultimediaElementClicked(long multimediaElementId);
+        void onMultimediaElementClicked(long id);
     }
 
     interface OnRecordVideoListener {
@@ -22,11 +22,17 @@ public interface GalleryView {
         void onPictureTaken();
     }
 
+    interface OnMultimediaElementSwipeListener {
+        void onMultimediaElementSwiped(long id);
+    }
+
     void setMultimediaElementClickListener(OnMultimediaElementClickListener multimediaElementClickListener);
 
     void setTakePictureListener(OnTakePictureListener takePictureListener);
 
     void setRecordVideoListener(OnRecordVideoListener recordVideoListener);
+
+    void setMultimediaElementSwipeListener(OnMultimediaElementSwipeListener multimediaElementSwipeListener);
 
     View getRootView();
 
@@ -34,5 +40,5 @@ public interface GalleryView {
 
     void disableCamera();
 
-    void bindMultimediaElements(Gallery gallery);
+    void bindGallery(Gallery gallery);
 }

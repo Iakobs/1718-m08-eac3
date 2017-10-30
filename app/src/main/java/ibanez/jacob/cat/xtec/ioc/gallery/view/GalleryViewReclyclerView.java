@@ -5,12 +5,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import ibanez.jacob.cat.xtec.ioc.gallery.R;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.Gallery;
+import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElement;
 import ibanez.jacob.cat.xtec.ioc.gallery.view.adapter.GalleryRecyclerViewAdapter;
 
 /**
@@ -26,6 +28,7 @@ public class GalleryViewReclyclerView implements GalleryView {
     private LinearLayoutManager mLayoutManager;
     private OnTakePictureListener mTakePictureListener;
     private OnRecordVideoListener mRecordVideoListener;
+    private OnMultimediaElementSwipeListener mMultimediaElementSwipeListener;
     private FloatingActionButton mFabTakePicture;
     private FloatingActionButton mFabRecordVideo;
 
@@ -45,6 +48,8 @@ public class GalleryViewReclyclerView implements GalleryView {
         //add a decorator to separate items
         DividerItemDecoration decoration = new DividerItemDecoration(context, mLayoutManager.getOrientation());
         recyclerView.addItemDecoration(decoration);
+        //add item touch helper
+        getItemTouchHelper().attachToRecyclerView(recyclerView);
 
         mFabTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +85,11 @@ public class GalleryViewReclyclerView implements GalleryView {
     }
 
     @Override
+    public void setMultimediaElementSwipeListener(OnMultimediaElementSwipeListener multimediaElementSwipeListener) {
+        this.mMultimediaElementSwipeListener = multimediaElementSwipeListener;
+    }
+
+    @Override
     public View getRootView() {
         return mRootView;
     }
@@ -101,8 +111,27 @@ public class GalleryViewReclyclerView implements GalleryView {
     }
 
     @Override
-    public void bindMultimediaElements(Gallery gallery) {
+    public void bindGallery(Gallery gallery) {
         mAdapter.setGallery(gallery);
         mLayoutManager.scrollToPosition(gallery.size() - 1);
+    }
+
+    private ItemTouchHelper getItemTouchHelper() {
+        return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT|ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                if (mMultimediaElementSwipeListener != null) {
+                    int position = viewHolder.getAdapterPosition();
+                    MultimediaElement multimediaElement = mAdapter.getMultimediaElementByPosition(position);
+
+                    mMultimediaElementSwipeListener.onMultimediaElementSwiped(multimediaElement.getId());
+                }
+            }
+        });
     }
 }

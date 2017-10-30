@@ -9,22 +9,22 @@ package ibanez.jacob.cat.xtec.ioc.gallery.model;
 public interface MultimediaElementRepository {
 
     /**
-     * This interface must be implemented by whatever class which wants to be notified when new
-     * data is inserted to the model.
+     * This interface must be implemented by whatever class which wants to be notified when the
+     * gallery is modificated.
      */
-    interface OnMultimediaElementCreatedListener {
+    interface OnGalleryChangedListener {
         /**
-         * This callback must be invoked whenever new data is inserted to the model
+         * This callback must be invoked when any modification of the gallery occurs
          */
-        void onMultimediaElementCreation();
+        void onGalleryChange();
     }
 
     /**
      * Attaches a new listener to the model
      *
-     * @param multimediaElementCreatedListener A class implementing {@link OnMultimediaElementCreatedListener}
+     * @param multimediaElementCreatedListener A class implementing {@link OnGalleryChangedListener}
      */
-    void setMultimediaElementCreatedListener(OnMultimediaElementCreatedListener multimediaElementCreatedListener);
+    void setGalleryChangedListener(OnGalleryChangedListener multimediaElementCreatedListener);
 
     /**
      * Gets a single {@link MultimediaElement} by it's id.
@@ -50,4 +50,11 @@ public interface MultimediaElementRepository {
      * @param multimediaElement The {@link MultimediaElement} to be inserted.
      */
     void addMultimediaElement(MultimediaElement multimediaElement);
+
+    /**
+     * Removes a {@link MultimediaElement} from its {@link Gallery}.
+     *
+     * @param id he {@link MultimediaElement} identifier.
+     */
+    void removeMultimediaElementById(long id);
 }

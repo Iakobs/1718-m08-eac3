@@ -12,7 +12,7 @@ import java.util.Random;
 public class MultimediaElementRepositoryFake implements MultimediaElementRepository {
 
     private Gallery mFakeDatabase = new Gallery();
-    private OnMultimediaElementCreatedListener mMultimediaElementCreatedListener;
+    private OnGalleryChangedListener mMultimediaElementCreatedListener;
 
     public MultimediaElementRepositoryFake() {
         //add 10 elements to the fake database
@@ -34,7 +34,7 @@ public class MultimediaElementRepositoryFake implements MultimediaElementReposit
     }
 
     @Override
-    public void setMultimediaElementCreatedListener(OnMultimediaElementCreatedListener multimediaElementCreatedListener) {
+    public void setGalleryChangedListener(OnGalleryChangedListener multimediaElementCreatedListener) {
         this.mMultimediaElementCreatedListener = multimediaElementCreatedListener;
     }
 
@@ -51,12 +51,26 @@ public class MultimediaElementRepositoryFake implements MultimediaElementReposit
     @Override
     public void addMultimediaElement(MultimediaElement multimediaElement) {
         mFakeDatabase.add(multimediaElement);
-        notifyMultimediaElementCreationListener();
+        notifyGalleryChangedListener();
     }
 
-    private void notifyMultimediaElementCreationListener() {
+    @Override
+    public void removeMultimediaElementById(long id) {
+        Gallery newGallery = new Gallery();
+
+        for (MultimediaElement multimediaElement : mFakeDatabase.getCollection()) {
+            if (multimediaElement.getId() != id) {
+                newGallery.add(multimediaElement);
+            }
+        }
+
+        this.mFakeDatabase = newGallery;
+        notifyGalleryChangedListener();
+    }
+
+    private void notifyGalleryChangedListener() {
         if (mMultimediaElementCreatedListener != null) {
-            mMultimediaElementCreatedListener.onMultimediaElementCreation();
+            mMultimediaElementCreatedListener.onGalleryChange();
         }
     }
 }

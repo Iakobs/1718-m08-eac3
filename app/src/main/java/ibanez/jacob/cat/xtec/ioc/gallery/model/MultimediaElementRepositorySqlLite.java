@@ -47,7 +47,7 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
     //class members
     private DBHelper mHelper;
     private SQLiteDatabase mDatabase;
-    private OnMultimediaElementCreatedListener mMultimediaElementCreatedListener;
+    private OnGalleryChangedListener mMultimediaElementCreatedListener;
 
     //Constructor
     public MultimediaElementRepositorySqlLite(Context context) {
@@ -80,7 +80,7 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
     }
 
     @Override
-    public void setMultimediaElementCreatedListener(OnMultimediaElementCreatedListener multimediaElementCreatedListener) {
+    public void setGalleryChangedListener(OnGalleryChangedListener multimediaElementCreatedListener) {
         this.mMultimediaElementCreatedListener = multimediaElementCreatedListener;
     }
 
@@ -178,8 +178,16 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
             //database access is not needed anymore
             close();
 
-            notifyMultimediaElementCreationListener();
+            notifyGalleryChangedListener();
         }
+    }
+
+    @Override
+    public void removeMultimediaElementById(long id) {
+        open(true);
+        mDatabase.execSQL("DELETE FROM " + TABLE_MULTIMEDIA_ELEMENTS + " WHERE " + COLUMN_ID + " = " + id);
+        close();
+        notifyGalleryChangedListener();
     }
 
     /**
@@ -213,9 +221,9 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
      * This method is to be called whenever wanted to notify the listener that there has been changes
      * in the database information.
      */
-    private void notifyMultimediaElementCreationListener() {
+    private void notifyGalleryChangedListener() {
         if (mMultimediaElementCreatedListener != null) {
-            mMultimediaElementCreatedListener.onMultimediaElementCreation();
+            mMultimediaElementCreatedListener.onGalleryChange();
         }
     }
 
