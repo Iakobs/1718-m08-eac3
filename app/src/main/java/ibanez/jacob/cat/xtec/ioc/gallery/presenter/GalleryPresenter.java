@@ -1,10 +1,12 @@
 package ibanez.jacob.cat.xtec.ioc.gallery.presenter;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
@@ -30,6 +32,8 @@ public class GalleryPresenter extends AppCompatActivity implements
         MultimediaElementRepository.OnGalleryChangedListener,
         LocationListener {
 
+    private static final int FINE_LOCATION_PERMISSION = 1;
+
     private GalleryView mGalleryView;
     private MultimediaElementRepository mRepository;
     private Toast mToast;
@@ -44,10 +48,13 @@ public class GalleryPresenter extends AppCompatActivity implements
         mGalleryView.setTakePictureListener(this);
         mGalleryView.setRecordVideoListener(this);
         mGalleryView.setMultimediaElementSwipeListener(this);
+        mGalleryView.disableCamera();
 
         mRepository = new MultimediaElementRepositorySqlLite(this);
         mRepository.setGalleryChangedListener(this);
         mGalleryView.bindGallery(mRepository.getGallery());
+
+        checkPermissions();
     }
 
     @Override
@@ -115,11 +122,20 @@ public class GalleryPresenter extends AppCompatActivity implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case FINE_LOCATION_PERMISSION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mGalleryView.enableCamera();
+                }
+                break;
+        }
     }
 
     private void checkPermissions() {
-        ActivityCompat.requestPermissions(this, new String[]{}, 1);
-        ActivityCompat.checkSelfPermission(this, "");
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION);
+        } else {
+            mGalleryView.enableCamera();
+        }
     }
 }
