@@ -32,8 +32,8 @@ public class GalleryViewReclyclerView implements GalleryView {
     private View mRootView;
     private GalleryRecyclerViewAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
-    private OnTakePictureListener mTakePictureListener;
-    private OnRecordVideoListener mRecordVideoListener;
+    private OnTakePictureClickListener mTakePictureListener;
+    private OnRecordVideoClickListener mRecordVideoListener;
     private OnMultimediaElementSwipeListener mMultimediaElementSwipeListener;
     private FloatingActionButton mFabTakePicture;
     private FloatingActionButton mFabRecordVideo;
@@ -82,12 +82,12 @@ public class GalleryViewReclyclerView implements GalleryView {
     }
 
     @Override
-    public void setTakePictureListener(OnTakePictureListener takePictureListener) {
+    public void setTakePictureListener(OnTakePictureClickListener takePictureListener) {
         this.mTakePictureListener = takePictureListener;
     }
 
     @Override
-    public void setRecordVideoListener(OnRecordVideoListener recordVideoListener) {
+    public void setRecordVideoListener(OnRecordVideoClickListener recordVideoListener) {
         this.mRecordVideoListener = recordVideoListener;
     }
 

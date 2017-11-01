@@ -2,4 +2,5 @@
     <string name="app_name">Gallery</string>
     <string name="iv_type_content_descriptor">An image depending on the element type</string>
     <string name="title_activity_maps">Map</string>
+    <string name="menu_item_info">Info</string>
 </resources>

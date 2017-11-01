@@ -14,11 +14,15 @@ public interface GalleryView {
         void onMultimediaElementClicked(long id);
     }
 
-    interface OnRecordVideoListener {
+    interface OnRecordVideoClickListener {
+        void onRecordVideoClicked();
+
         void onVideoRecorded();
     }
 
-    interface OnTakePictureListener {
+    interface OnTakePictureClickListener {
+        void onTakePictureClicked();
+
         void onPictureTaken();
     }
 
@@ -28,9 +32,9 @@ public interface GalleryView {
 
     void setMultimediaElementClickListener(OnMultimediaElementClickListener multimediaElementClickListener);
 
-    void setTakePictureListener(OnTakePictureListener takePictureListener);
+    void setTakePictureListener(OnTakePictureClickListener takePictureListener);
 
-    void setRecordVideoListener(OnRecordVideoListener recordVideoListener);
+    void setRecordVideoListener(OnRecordVideoClickListener recordVideoListener);
 
     void setMultimediaElementSwipeListener(OnMultimediaElementSwipeListener multimediaElementSwipeListener);
 

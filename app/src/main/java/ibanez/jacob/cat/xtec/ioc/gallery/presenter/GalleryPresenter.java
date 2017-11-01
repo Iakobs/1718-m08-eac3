@@ -1,9 +1,12 @@
 package ibanez.jacob.cat.xtec.ioc.gallery.presenter;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -26,17 +29,19 @@ import ibanez.jacob.cat.xtec.ioc.gallery.view.GalleryViewReclyclerView;
  */
 public class GalleryPresenter extends AppCompatActivity implements
         GalleryView.OnMultimediaElementClickListener,
-        GalleryView.OnTakePictureListener,
-        GalleryView.OnRecordVideoListener,
+        GalleryView.OnTakePictureClickListener,
+        GalleryView.OnRecordVideoClickListener,
         GalleryView.OnMultimediaElementSwipeListener,
         MultimediaElementRepository.OnGalleryChangedListener,
         LocationListener {
 
-    private static final int FINE_LOCATION_PERMISSION = 1;
+    private static final int ACCESS_FINE_LOCATION_PERMISSION = 1;
 
     private GalleryView mGalleryView;
     private MultimediaElementRepository mRepository;
     private Toast mToast;
+    private LocationManager mLocationManager;
+    private Location mLastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +59,14 @@ public class GalleryPresenter extends AppCompatActivity implements
         mRepository.setGalleryChangedListener(this);
         mGalleryView.bindGallery(mRepository.getGallery());
 
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         checkPermissions();
     }
 
     @Override
-    public void onVideoRecorded() {
-        MultimediaElement multimediaElement = new MultimediaElement();
-        multimediaElement.setName("Video." + new Date().toString() + ".mp4");
-        multimediaElement.setPath("/");
-        multimediaElement.setType(MultimediaElementType.VIDEO.getType());
-        multimediaElement.setLatLng(new LatLng(0, 0));
-        mRepository.addMultimediaElement(multimediaElement);
+    public void onTakePictureClicked() {
+
     }
 
     @Override
@@ -73,7 +75,30 @@ public class GalleryPresenter extends AppCompatActivity implements
         multimediaElement.setName("Picture." + new Date().toString() + ".jpg");
         multimediaElement.setPath("/");
         multimediaElement.setType(MultimediaElementType.PICTURE.getType());
-        multimediaElement.setLatLng(new LatLng(0, 0));
+        LatLng latLng = new LatLng(0.0, 0.0);
+        if (mLastLocation != null) {
+            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        }
+        multimediaElement.setLatLng(latLng);
+        mRepository.addMultimediaElement(multimediaElement);
+    }
+
+    @Override
+    public void onRecordVideoClicked() {
+
+    }
+
+    @Override
+    public void onVideoRecorded() {
+        MultimediaElement multimediaElement = new MultimediaElement();
+        multimediaElement.setName("Video." + new Date().toString() + ".mp4");
+        multimediaElement.setPath("/");
+        multimediaElement.setType(MultimediaElementType.VIDEO.getType());
+        LatLng latLng = new LatLng(0.0, 0.0);
+        if (mLastLocation != null) {
+            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        }
+        multimediaElement.setLatLng(latLng);
         mRepository.addMultimediaElement(multimediaElement);
     }
 
@@ -85,7 +110,7 @@ public class GalleryPresenter extends AppCompatActivity implements
             if (mToast != null) {
                 mToast.cancel();
             }
-            mToast = Toast.makeText(this, multimediaElement.toString(), Toast.LENGTH_LONG);
+            mToast = Toast.makeText(this, multimediaElement.toString(), Toast.LENGTH_SHORT);
             mToast.show();
         }
     }
@@ -102,30 +127,39 @@ public class GalleryPresenter extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-
+        mLastLocation = location;
+        if (mLastLocation != null) {
+            mGalleryView.enableCamera();
+        }
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
+        switch (status) {
+            case LocationProvider.AVAILABLE:
+                mGalleryView.enableCamera();
+                break;
+            default:
+                mGalleryView.disableCamera();
+        }
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
+        mGalleryView.enableCamera();
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        mGalleryView.disableCamera();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case FINE_LOCATION_PERMISSION:
+            case ACCESS_FINE_LOCATION_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mGalleryView.enableCamera();
+                    requestLocationUpdates();
                 }
                 break;
         }
@@ -133,9 +167,16 @@ public class GalleryPresenter extends AppCompatActivity implements
 
     private void checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION);
+            this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_FINE_LOCATION_PERMISSION);
         } else {
-            mGalleryView.enableCamera();
+            requestLocationUpdates();
+        }
+    }
+
+    private void requestLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
         }
     }
 }
