@@ -8,4 +8,5 @@
     <color name="grey_image_tint">#747474</color>
     <color name="grey_text_color">#747474</color>
     <color name="grey_background">#e8e8e8</color>
+    <color name="grey_swipe_background">#747474</color>
 </resources>
