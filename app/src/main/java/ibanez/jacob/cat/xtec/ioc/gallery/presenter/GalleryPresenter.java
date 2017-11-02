@@ -2,6 +2,7 @@ package ibanez.jacob.cat.xtec.ioc.gallery.presenter;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -9,7 +10,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -39,7 +39,6 @@ public class GalleryPresenter extends AppCompatActivity implements
 
     private GalleryView mGalleryView;
     private MultimediaElementRepository mRepository;
-    private Toast mToast;
     private LocationManager mLocationManager;
     private Location mLastLocation;
 
@@ -104,14 +103,14 @@ public class GalleryPresenter extends AppCompatActivity implements
 
     @Override
     public void onMultimediaElementClicked(long id) {
-        MultimediaElement multimediaElement = mRepository.getMultimediaElementById(id);
+        Intent intent = new Intent(this, MultimediaElementDetailPresenter.class);
+        Bundle extras = new Bundle();
+        extras.putLong(MultimediaElementDetailPresenter.EXTRA_MULTIMEDIA_ELEMENT_ID, id);
 
-        if (multimediaElement != null) {
-            if (mToast != null) {
-                mToast.cancel();
-            }
-            mToast = Toast.makeText(this, multimediaElement.toString(), Toast.LENGTH_SHORT);
-            mToast.show();
+        //put the bundle in the intent and start the new activity
+        intent.putExtras(extras);
+        if (intent.resolveActivity(this.getPackageManager()) != null) {
+            this.startActivity(intent);
         }
     }
 
@@ -158,18 +157,16 @@ public class GalleryPresenter extends AppCompatActivity implements
     }
 
     private void checkPermissions() {
-        if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_FINE_LOCATION_PERMISSION);
+        if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            this.requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            }, ACCESS_FINE_LOCATION_PERMISSION);
         } else {
             requestLocationUpdates();
-        }
-
-        if (this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            this.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_PERMISSION);
-        }
-
-        if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            this.requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION);
         }
     }
 
