@@ -6,10 +6,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
@@ -36,6 +34,8 @@ public class GalleryPresenter extends AppCompatActivity implements
         LocationListener {
 
     private static final int ACCESS_FINE_LOCATION_PERMISSION = 1;
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 2;
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION = 3;
 
     private GalleryView mGalleryView;
     private MultimediaElementRepository mRepository;
@@ -128,30 +128,22 @@ public class GalleryPresenter extends AppCompatActivity implements
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        if (mLastLocation != null) {
-            mGalleryView.enableCamera();
-        }
+        switchCameraStatus();
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        switch (status) {
-            case LocationProvider.AVAILABLE:
-                mGalleryView.enableCamera();
-                break;
-            default:
-                mGalleryView.disableCamera();
-        }
+        switchCameraStatus();
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        mGalleryView.enableCamera();
+        switchCameraStatus();
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        mGalleryView.disableCamera();
+        switchCameraStatus();
     }
 
     @Override
@@ -166,17 +158,41 @@ public class GalleryPresenter extends AppCompatActivity implements
     }
 
     private void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_FINE_LOCATION_PERMISSION);
         } else {
             requestLocationUpdates();
         }
+
+        if (this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            this.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_PERMISSION);
+        }
+
+        if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            this.requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION);
+        }
     }
 
     private void requestLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
             mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        }
+    }
+
+    private void switchCameraStatus() {
+        if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (mLastLocation == null) {
+                mLastLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            }
+            if (mLastLocation == null) {
+                mLastLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+        }
+        if (mLastLocation != null) {
+            mGalleryView.enableCamera();
+        } else {
+            mGalleryView.disableCamera();
         }
     }
 }
