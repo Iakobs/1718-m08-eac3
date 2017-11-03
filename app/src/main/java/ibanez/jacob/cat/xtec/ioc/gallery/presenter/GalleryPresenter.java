@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
@@ -33,9 +34,8 @@ public class GalleryPresenter extends AppCompatActivity implements
         MultimediaElementRepository.OnGalleryChangedListener,
         LocationListener {
 
-    private static final int ACCESS_FINE_LOCATION_PERMISSION = 1;
-    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 2;
-    private static final int READ_EXTERNAL_STORAGE_PERMISSION = 3;
+    private static final int LOCATION_AND_STORAGE_PERMISSIONS = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     private GalleryView mGalleryView;
     private MultimediaElementRepository mRepository;
@@ -65,7 +65,10 @@ public class GalleryPresenter extends AppCompatActivity implements
 
     @Override
     public void onTakePictureClicked() {
-
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
     }
 
     @Override
@@ -99,6 +102,11 @@ public class GalleryPresenter extends AppCompatActivity implements
         }
         multimediaElement.setLatLng(latLng);
         mRepository.addMultimediaElement(multimediaElement);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -148,7 +156,7 @@ public class GalleryPresenter extends AppCompatActivity implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case ACCESS_FINE_LOCATION_PERMISSION:
+            case LOCATION_AND_STORAGE_PERMISSIONS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     requestLocationUpdates();
                 }
@@ -164,7 +172,7 @@ public class GalleryPresenter extends AppCompatActivity implements
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE
-            }, ACCESS_FINE_LOCATION_PERMISSION);
+            }, LOCATION_AND_STORAGE_PERMISSIONS);
         } else {
             requestLocationUpdates();
         }

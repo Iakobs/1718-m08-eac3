@@ -62,7 +62,7 @@ public class GalleryViewReclyclerView implements GalleryView {
             @Override
             public void onClick(View view) {
                 if (mTakePictureListener != null) {
-                    mTakePictureListener.onPictureTaken();
+                    mTakePictureListener.onTakePictureClicked();
                 }
             }
         });
