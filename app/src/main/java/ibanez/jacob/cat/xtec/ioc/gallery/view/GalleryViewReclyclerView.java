@@ -70,7 +70,7 @@ public class GalleryViewReclyclerView implements GalleryView {
             @Override
             public void onClick(View view) {
                 if (mRecordVideoListener != null) {
-                    mRecordVideoListener.onVideoRecorded();
+                    mRecordVideoListener.onRecordVideoClicked();
                 }
             }
         });

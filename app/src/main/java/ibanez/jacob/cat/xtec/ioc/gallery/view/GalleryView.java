@@ -16,14 +16,10 @@ public interface GalleryView {
 
     interface OnRecordVideoClickListener {
         void onRecordVideoClicked();
-
-        void onVideoRecorded();
     }
 
     interface OnTakePictureClickListener {
         void onTakePictureClicked();
-
-        void onPictureTaken();
     }
 
     interface OnMultimediaElementSwipeListener {

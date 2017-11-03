@@ -7,15 +7,23 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import ibanez.jacob.cat.xtec.ioc.gallery.R;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElement;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementRepository;
 import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElementRepositorySqlLite;
@@ -34,13 +42,17 @@ public class GalleryPresenter extends AppCompatActivity implements
         MultimediaElementRepository.OnGalleryChangedListener,
         LocationListener {
 
+    //Tag for logging purposes
+    private static final String TAG = GalleryPresenter.class.getSimpleName();
     private static final int LOCATION_AND_STORAGE_PERMISSIONS = 1;
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int REQUEST_SHOOT_VIDEO = 2;
 
     private GalleryView mGalleryView;
     private MultimediaElementRepository mRepository;
     private LocationManager mLocationManager;
     private Location mLastLocation;
+    private String mCurrentMultimediaElementPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,50 +75,136 @@ public class GalleryPresenter extends AppCompatActivity implements
         checkPermissions();
     }
 
+    private File createMultimediaElementFile(MultimediaElementType type) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String multimediaElementFileName = null;
+        String suffix = null;
+        switch (type) {
+            case PICTURE:
+                multimediaElementFileName = "JPEG_" + timeStamp + "_";
+                suffix = ".jpg";
+                break;
+            case VIDEO:
+                multimediaElementFileName = "MP4_" + timeStamp + "_";
+                suffix = ".mp4";
+                break;
+        }
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_DCIM);
+        File multimediaElementFile = File.createTempFile(
+                multimediaElementFileName,
+                suffix,
+                storageDir
+        );
+        mCurrentMultimediaElementPath = multimediaElementFile.getAbsolutePath();
+        return multimediaElementFile;
+    }
+
     @Override
     public void onTakePictureClicked() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createMultimediaElementFile(MultimediaElementType.PICTURE);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.e(TAG, "An error occured while creating the file for storing the picture", ex);
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        getString(R.string.provider_authority),
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
         }
-    }
-
-    @Override
-    public void onPictureTaken() {
-        MultimediaElement multimediaElement = new MultimediaElement();
-        multimediaElement.setName("Picture." + new Date().toString() + ".jpg");
-        multimediaElement.setPath("/");
-        multimediaElement.setType(MultimediaElementType.PICTURE.getType());
-        LatLng latLng = new LatLng(0.0, 0.0);
-        if (mLastLocation != null) {
-            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        }
-        multimediaElement.setLatLng(latLng);
-        mRepository.addMultimediaElement(multimediaElement);
     }
 
     @Override
     public void onRecordVideoClicked() {
-
-    }
-
-    @Override
-    public void onVideoRecorded() {
-        MultimediaElement multimediaElement = new MultimediaElement();
-        multimediaElement.setName("Video." + new Date().toString() + ".mp4");
-        multimediaElement.setPath("/");
-        multimediaElement.setType(MultimediaElementType.VIDEO.getType());
-        LatLng latLng = new LatLng(0.0, 0.0);
-        if (mLastLocation != null) {
-            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createMultimediaElementFile(MultimediaElementType.VIDEO);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.e(TAG, "An error occured while creating the file for storing the picture", ex);
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        getString(R.string.provider_authority),
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_SHOOT_VIDEO);
+            }
         }
-        multimediaElement.setLatLng(latLng);
-        mRepository.addMultimediaElement(multimediaElement);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_TAKE_PHOTO:
+                if (resultCode == RESULT_OK) {
+                    boolean hasNameAndPath = false;
+                    boolean hasLocation = false;
+                    String name = null;
+                    String path = null;
+                    LatLng latLng = null;
+                    if (mCurrentMultimediaElementPath != null) {
+                        name = mCurrentMultimediaElementPath.substring(mCurrentMultimediaElementPath.lastIndexOf("/") + 1, mCurrentMultimediaElementPath.length());
+                        path = mCurrentMultimediaElementPath.substring(0, mCurrentMultimediaElementPath.lastIndexOf("/") + 1);
+                        hasNameAndPath = true;
+                    }
+                    if (mLastLocation != null) {
+                        latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                        hasLocation = true;
+                    }
+                    if (hasNameAndPath && hasLocation) {
+                        MultimediaElement multimediaElement = new MultimediaElement();
+                        multimediaElement.setName(name);
+                        multimediaElement.setPath(path);
+                        multimediaElement.setType(MultimediaElementType.PICTURE.getType());
+                        multimediaElement.setLatLng(latLng);
+                        mRepository.addMultimediaElement(multimediaElement);
+                    } else {
+                        Log.e(TAG, "");
+                    }
+                }
+                break;
+            case REQUEST_SHOOT_VIDEO:
+                if (resultCode == RESULT_OK) {
+                    boolean hasNameAndPath = false;
+                    boolean hasLocation = false;
+                    String name = null;
+                    String path = null;
+                    LatLng latLng = null;
+                    if (mCurrentMultimediaElementPath != null) {
+                        name = mCurrentMultimediaElementPath.substring(mCurrentMultimediaElementPath.lastIndexOf("/") + 1, mCurrentMultimediaElementPath.length());
+                        path = mCurrentMultimediaElementPath.substring(0, mCurrentMultimediaElementPath.lastIndexOf("/") + 1);
+                        hasNameAndPath = true;
+                    }
+                    if (mLastLocation != null) {
+                        latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                        hasLocation = true;
+                    }
+                    if (hasNameAndPath && hasLocation) {
+                        MultimediaElement multimediaElement = new MultimediaElement();
+                        multimediaElement.setName(name);
+                        multimediaElement.setPath(path);
+                        multimediaElement.setType(MultimediaElementType.VIDEO.getType());
+                        multimediaElement.setLatLng(latLng);
+                        mRepository.addMultimediaElement(multimediaElement);
+                    } else {
+                        Log.e(TAG, "");
+                    }
+                }
+                break;
+        }
     }
 
     @Override
