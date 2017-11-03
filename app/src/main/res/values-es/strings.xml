@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Galería</string>
+    <string name="iv_type_content_descriptor">Una imagen dependiendo del tipo de elemento</string>
+    <string name="menu_item_info">Info</string>
+</resources>
