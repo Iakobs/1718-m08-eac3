@@ -10,6 +10,8 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.File;
+
 /**
  * Implementation of {@link MultimediaElementRepository} which gets data from a Sqlite database.
  *
@@ -49,7 +51,11 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
     private SQLiteDatabase mDatabase;
     private OnGalleryChangedListener mMultimediaElementCreatedListener;
 
-    //Constructor
+    /**
+     * Instantiates a new {@link MultimediaElementRepositorySqlLite}.
+     *
+     * @param context the context
+     */
     public MultimediaElementRepositorySqlLite(Context context) {
         this.mHelper = new DBHelper(context);
     }
@@ -178,16 +184,34 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
             //database access is not needed anymore
             close();
 
+            //notify the listener that there has been changes on the gallery
             notifyGalleryChangedListener();
         }
     }
 
     @Override
     public void removeMultimediaElementById(long id) {
-        open(true);
-        mDatabase.execSQL("DELETE FROM " + TABLE_MULTIMEDIA_ELEMENTS + " WHERE " + COLUMN_ID + " = " + id);
-        close();
-        notifyGalleryChangedListener();
+        //first retrieve the element
+        MultimediaElement multimediaElement = this.getMultimediaElementById(id);
+
+        //check that the element exists
+        if (multimediaElement != null) {
+            //delete the associated file in the external memory
+            File multimediaElementFile = new File(multimediaElement.getPath() + multimediaElement.getName());
+            multimediaElementFile.delete();
+
+            //get access to the database
+            open(true);
+
+            //delete from the database
+            mDatabase.execSQL("DELETE FROM " + TABLE_MULTIMEDIA_ELEMENTS + " WHERE " + COLUMN_ID + " = " + id);
+
+            //close access to the database
+            close();
+
+            //notify the listener that there has been changes on the gallery
+            notifyGalleryChangedListener();
+        }
     }
 
     /**
@@ -199,6 +223,7 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
     private MultimediaElement getMultimediaElement(Cursor cursor) {
         MultimediaElement multimediaElement;
 
+        //get info from the cursor
         long id = Long.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_ID)));
         String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
         String path = cursor.getString(cursor.getColumnIndex(COLUMN_PATH));
@@ -207,6 +232,7 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
         double longitude = Double.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_LONGITUDE)));
         LatLng latLng = new LatLng(latitude, longitude);
 
+        //fill the object
         multimediaElement = new MultimediaElement();
         multimediaElement.setId(id);
         multimediaElement.setName(name);
@@ -263,8 +289,13 @@ public class MultimediaElementRepositorySqlLite implements MultimediaElementRepo
      */
     private static class DBHelper extends SQLiteOpenHelper {
 
-        DBHelper(Context con) {
-            super(con, DB_NAME, null, VERSION);
+        /**
+         * Instantiates a new Db helper.
+         *
+         * @param context the context
+         */
+        DBHelper(Context context) {
+            super(context, DB_NAME, null, VERSION);
         }
 
         @Override

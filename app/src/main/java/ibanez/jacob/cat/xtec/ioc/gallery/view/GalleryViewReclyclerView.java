@@ -21,6 +21,8 @@ import ibanez.jacob.cat.xtec.ioc.gallery.model.MultimediaElement;
 import ibanez.jacob.cat.xtec.ioc.gallery.view.adapter.GalleryRecyclerViewAdapter;
 
 /**
+ * Class implementing the {@link GalleryView} with a Recycler View as an adapter.
+ *
  * @author <a href="mailto:jacobibanez@jacobibanez.com">Jacob Ibáñez Sánchez</a>.
  */
 public class GalleryViewReclyclerView implements GalleryView {
@@ -38,24 +40,34 @@ public class GalleryViewReclyclerView implements GalleryView {
     private FloatingActionButton mFabTakePicture;
     private FloatingActionButton mFabRecordVideo;
 
+    /**
+     * Instantiates a new Gallery view reclycler view.
+     *
+     * @param context   the context
+     * @param container the container
+     */
     public GalleryViewReclyclerView(Context context, ViewGroup container) {
         mContext = context;
         mRootView = LayoutInflater.from(mContext).inflate(R.layout.gallery_view, container);
 
+        //get references to member variables
         mAdapter = new GalleryRecyclerViewAdapter();
         mFabTakePicture = mRootView.findViewById(R.id.fab_take_picture);
         mFabRecordVideo = mRootView.findViewById(R.id.fab_record_video);
 
+        //create the recycler view and set its layout manager
         RecyclerView recyclerView = mRootView.findViewById(R.id.rv_gallery);
-        recyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true); //size is equals for every element of the list
         mLayoutManager = new LinearLayoutManager(mRootView.getContext()); //default is set to vertical
-        mLayoutManager.setReverseLayout(true);
+        mLayoutManager.setReverseLayout(true); //the order is reversed, so the latest element is on top
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setAdapter(mAdapter);
+
         //add a decorator to separate items
         DividerItemDecoration decoration = new DividerItemDecoration(mContext, mLayoutManager.getOrientation());
         recyclerView.addItemDecoration(decoration);
-        //add item touch helper
+
+        //add item touch helper to add swipe functionality
         getItemTouchHelper().attachToRecyclerView(recyclerView);
 
         mFabTakePicture.setOnClickListener(new View.OnClickListener() {
@@ -82,12 +94,12 @@ public class GalleryViewReclyclerView implements GalleryView {
     }
 
     @Override
-    public void setTakePictureListener(OnTakePictureClickListener takePictureListener) {
+    public void setTakePictureClickListener(OnTakePictureClickListener takePictureListener) {
         this.mTakePictureListener = takePictureListener;
     }
 
     @Override
-    public void setRecordVideoListener(OnRecordVideoClickListener recordVideoListener) {
+    public void setRecordVideoClickListener(OnRecordVideoClickListener recordVideoListener) {
         this.mRecordVideoListener = recordVideoListener;
     }
 
@@ -119,29 +131,54 @@ public class GalleryViewReclyclerView implements GalleryView {
 
     @Override
     public void bindGallery(Gallery gallery) {
+        //set a new gallery
         mAdapter.setGallery(gallery);
+        //scroll the view to the last item
         mLayoutManager.scrollToPosition(gallery.size() - 1);
     }
 
     private ItemTouchHelper getItemTouchHelper() {
+        //this class provides swipe functionality to the recycler view
         return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                                   RecyclerView.ViewHolder target) {
-                return false;
+                return false; //do nothing
             }
 
+            /**
+             * This method is overriden to take a single {@link MultimediaElement} and notify the
+             * listener in order to delete it.
+             *
+             * @param viewHolder The view holding the element
+             * @param direction The direction of the swipe event
+             */
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 if (mMultimediaElementSwipeListener != null) {
                     int position = viewHolder.getAdapterPosition();
                     MultimediaElement multimediaElement = mAdapter.getMultimediaElementByPosition(position);
 
+                    //notify listener that a multimedia element has been swiped
                     mMultimediaElementSwipeListener.onMultimediaElementSwiped(multimediaElement.getId());
                 }
             }
 
+            /**
+             * This method is overriden to draw a child view below the view holder, showing a trash
+             * can icon.
+             *
+             * @param canvas The canvas
+             * @param recyclerView The recycler view
+             * @param viewHolder The view holder
+             * @param dX The amount of horizontal displacement caused by user's action
+             * @param dY The amount of vertical displacement caused by user's action
+             * @param actionState The type of interaction on the View. Is either
+             * {@link ItemTouchHelper#ACTION_STATE_DRAG} or {@link ItemTouchHelper#ACTION_STATE_SWIPE}.
+             * @param isCurrentlyActive True if this view is currently being controlled by the
+             *                          user or false it is simply animating back to its original state.
+             */
             @Override
             public void onChildDraw(Canvas canvas,
                                     RecyclerView recyclerView,

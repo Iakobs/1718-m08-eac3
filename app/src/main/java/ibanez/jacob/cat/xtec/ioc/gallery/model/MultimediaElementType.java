@@ -7,7 +7,13 @@ package ibanez.jacob.cat.xtec.ioc.gallery.model;
  */
 public enum MultimediaElementType {
 
+    /**
+     * Picture multimedia element type.
+     */
     PICTURE(0),
+    /**
+     * Video multimedia element type.
+     */
     VIDEO(1);
 
     private int type;
@@ -16,6 +22,11 @@ public enum MultimediaElementType {
         this.type = type;
     }
 
+    /**
+     * Gets an int representation of the type.
+     *
+     * @return the type
+     */
     public int getType() {
         return type;
     }
